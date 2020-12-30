@@ -24,6 +24,7 @@ use JMS\Serializer\Type\ParserInterface;
 use JMS\Serializer\Visitor\Factory\DeserializationVisitorFactory;
 use JMS\Serializer\Visitor\Factory\SerializationVisitorFactory;
 use Metadata\Cache\CacheInterface;
+use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 
@@ -56,6 +57,11 @@ class JmsSerializerFactoryTest extends TestCase
 
     public function testInvokeWithFullConfig(): void
     {
+        vfsStream::setup('root', null, [
+            'foo' => [],
+            'bar' => [],
+        ]);
+
         $config = [
             'foo' => [
                 'bar' => [
@@ -64,7 +70,7 @@ class JmsSerializerFactoryTest extends TestCase
                     ConfigKey::TYPE_PARSER => ParserInterface::class,
                     ConfigKey::ANNOTATION_READER => Reader::class,
                     ConfigKey::DEBUG => true,
-                    ConfigKey::CACHE_DIR => __DIR__,
+                    ConfigKey::CACHE_DIR => vfsStream::url('root/foo'),
                     ConfigKey::HANDLERS => [
                         'handler.abc',
                         'handler.def',
@@ -89,7 +95,7 @@ class JmsSerializerFactoryTest extends TestCase
                     ConfigKey::ADD_DEFAULT_DESERIALIZATION_VISITORS => true,
                     ConfigKey::INCLUDE_INTERFACE_METADATA => true,
                     ConfigKey::METADATA_DIRS => [
-                        'Abc' => __DIR__,
+                        'Abc' => vfsStream::url('root/bar'),
                     ],
                     ConfigKey::METADATA_DRIVER_FACTORY => DriverFactoryInterface::class,
                     ConfigKey::SERIALIZATION_CONTEXT_FACTORY => SerializationContextFactoryInterface::class,
@@ -176,7 +182,7 @@ class JmsSerializerFactoryTest extends TestCase
                 ->setTypeParser($typeParser)
                 ->setAnnotationReader($annotationReader)
                 ->setDebug(true)
-                ->setCacheDir(__DIR__)
+                ->setCacheDir(vfsStream::url('root/foo'))
                 ->addDefaultHandlers()
                 ->configureHandlers(function (HandlerRegistry $registry) use ($handler1, $handler2): void {
                     $registry->registerSubscribingHandler($handler1);
@@ -195,7 +201,7 @@ class JmsSerializerFactoryTest extends TestCase
                 ->setDeserializationVisitor('abc', $deserializationVisitor1)
                 ->setDeserializationVisitor('def', $deserializationVisitor2)
                 ->includeInterfaceMetadata(true)
-                ->setMetadataDirs(['Abc' => __DIR__])
+                ->setMetadataDirs(['Abc' => vfsStream::url('root/bar')])
                 ->setMetadataDriverFactory($metadataDriverFactory)
                 ->setSerializationContextFactory($serializationContextFactory)
                 ->setDeserializationContextFactory($deserializationContextFactory)
@@ -208,5 +214,17 @@ class JmsSerializerFactoryTest extends TestCase
         $instance = $factory($container, SerializerInterface::class);
 
         $this->assertEquals($expectedInstance, $instance);
+    }
+
+    public function testConfigCaching(): void
+    {
+        $factory = new JmsSerializerFactory('foo', 'bar');
+        $cachedFactory = null;
+
+        // Simulate config caching
+        $cache = sprintf('$cachedFactory = %s;', var_export($factory, true));
+        eval($cache);
+
+        $this->assertEquals($cachedFactory, $factory);
     }
 }

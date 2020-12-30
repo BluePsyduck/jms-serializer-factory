@@ -58,6 +58,15 @@ class JmsSerializerFactory
         $this->configKeys = $configKeys;
     }
 
+    /**
+     * @param array<mixed> $state
+     * @return self
+     */
+    public static function __set_state(array $state): self
+    {
+        return new self(...($state['configKeys'] ?? []));
+    }
+
     public function __invoke(ContainerInterface $container, string $requestedName): SerializerInterface
     {
         $config = $this->readConfig($container, $this->configKeys);
