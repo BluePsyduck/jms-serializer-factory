@@ -30,7 +30,6 @@ class JmsSerializerFactory
         ConfigKey::SERIALIZATION_CONTEXT_FACTORY => 'setSerializationContextFactory',
         ConfigKey::DESERIALIZATION_CONTEXT_FACTORY => 'setDeserializationContextFactory',
         ConfigKey::METADATA_CACHE => 'setMetadataCache',
-        ConfigKey::DOC_BLOCK_TYPE_RESOLVER => 'setDocBlockTypeResolver',
     ];
 
     private const VALUES = [
@@ -38,13 +37,14 @@ class JmsSerializerFactory
         ConfigKey::CACHE_DIR => 'setCacheDir',
         ConfigKey::INCLUDE_INTERFACE_METADATA => 'includeInterfaceMetadata',
         ConfigKey::METADATA_DIRS => 'setMetadataDirs',
+        ConfigKey::DOC_BLOCK_TYPE_RESOLVER => 'setDocBlockTypeResolver',
     ];
 
     private const FLAGS = [
         ConfigKey::ADD_DEFAULT_HANDLERS => 'addDefaultHandlers',
         ConfigKey::ADD_DEFAULT_LISTENERS => 'addDefaultListeners',
         ConfigKey::ADD_DEFAULT_SERIALIZATION_VISITORS => 'addDefaultSerializationVisitors',
-        ConfigKey::ADD_DEFAULT_DESERIALIZATION_VISITORS => 'addDefaultSerializationVisitors',
+        ConfigKey::ADD_DEFAULT_DESERIALIZATION_VISITORS => 'addDefaultDeserializationVisitors',
     ];
 
     /** @var array<mixed> */
