@@ -1,0 +1,14 @@
+parameters:
+  level: max
+  paths:
+    - src
+    - test/src
+
+  ignoreErrors:
+    - '#Variable method call on JMS\\Serializer\\SerializerBuilder\.#'
+    - '#Dynamic call to static method PHPUnit\\Framework\\.*#'
+
+includes:
+  - vendor/phpstan/phpstan-phpunit/extension.neon
+  - vendor/phpstan/phpstan-phpunit/rules.neon
+  - vendor/phpstan/phpstan-strict-rules/rules.neon

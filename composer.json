@@ -1,0 +1,52 @@
+{
+    "name": "bluepsyduck/jms-serializer-factory",
+    "description": "A Laminas factory to initialize the JMS serializer through the config.",
+    "homepage": "https://github.com/BluePsyduck/jms-serializer-factory",
+    "type": "library",
+    "keywords": ["BluePsyduck", "jms", "serializer", "factory"],
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "BluePsyduck",
+            "email": "bluepsyduck@gmx.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "jms/serializer": "^3.0",
+        "psr/container": "^1.0"
+    },
+    "require-dev": {
+        "bluepsyduck/test-helper": "^1.0",
+        "phpstan/phpstan": "^0.12",
+        "phpstan/phpstan-phpunit": "^0.12",
+        "phpstan/phpstan-strict-rules": "^0.12",
+        "phpunit/phpunit": "^9.0",
+        "rregeer/phpunit-coverage-check": "^0.3",
+        "squizlabs/php_codesniffer": "^3.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "BluePsyduck\\JmsSerializerFactory\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BluePsyduckTest\\JmsSerializerFactory\\": "test/src/"
+        }
+    },
+    "scripts": {
+        "coverage-check": "coverage-check test/coverage/clover.xml 100",
+        "phpcbf": "phpcbf -p --colors",
+        "phpcs": "phpcs -p --colors",
+        "phpstan": "phpstan analyse --no-interaction --ansi",
+        "test-unit": "phpunit --testsuite unit-test --colors=always --coverage-html=test/coverage --coverage-clover=test/coverage/clover.xml",
+        "test": [
+            "@test-unit",
+            "@coverage-check",
+            "@phpcs",
+            "@phpstan"
+        ]
+    }
+}
