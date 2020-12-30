@@ -47,6 +47,12 @@ class JmsSerializerFactory
         ConfigKey::ADD_DEFAULT_DESERIALIZATION_VISITORS => 'addDefaultDeserializationVisitors',
     ];
 
+    /**
+     * The alias under which the config is accessible in the container.
+     * @var string
+     */
+    public static string $configAlias = 'config';
+
     /** @var array<mixed> */
     private array $configKeys;
 
@@ -90,7 +96,7 @@ class JmsSerializerFactory
      */
     private function readConfig(ContainerInterface $container, array $configKeys): array
     {
-        $config = $container->get('config');
+        $config = $container->get(self::$configAlias);
         foreach ($configKeys as $configKey) {
             $config = $config[$configKey] ?? [];
         }
