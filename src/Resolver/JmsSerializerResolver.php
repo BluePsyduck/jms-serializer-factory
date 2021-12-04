@@ -7,8 +7,12 @@ namespace BluePsyduck\JmsSerializerFactory\Resolver;
 use BluePsyduck\JmsSerializerFactory\Constant\ConfigKey;
 use BluePsyduck\LaminasAutoWireFactory\Resolver\ConfigResolver;
 use JMS\Serializer\EventDispatcher\EventDispatcher;
+use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\Handler\HandlerRegistry;
+use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\SerializerBuilder;
+use JMS\Serializer\Visitor\Factory\DeserializationVisitorFactory;
+use JMS\Serializer\Visitor\Factory\SerializationVisitorFactory;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 
@@ -54,12 +58,12 @@ class JmsSerializerResolver extends ConfigResolver
 
         $builder = new SerializerBuilder();
 
-        $this->configureDependencies($builder, $config, $container);
-        $this->configureValues($builder, $config);
-        $this->configureFlags($builder, $config);
-        $this->configureHandlers($builder, $config, $container);
-        $this->configureListeners($builder, $config, $container);
-        $this->configureVisitors($builder, $config, $container);
+        $this->configureDependencies($builder, $config, $container); // @phpstan-ignore-line
+        $this->configureValues($builder, $config); // @phpstan-ignore-line
+        $this->configureFlags($builder, $config); // @phpstan-ignore-line
+        $this->configureHandlers($builder, $config, $container); // @phpstan-ignore-line
+        $this->configureListeners($builder, $config, $container); // @phpstan-ignore-line
+        $this->configureVisitors($builder, $config, $container); // @phpstan-ignore-line
 
         return $builder->build();
     }
@@ -67,7 +71,7 @@ class JmsSerializerResolver extends ConfigResolver
     /**
      * Configures the dependencies in the builder, which get retrieved from the container using the config values.
      * @param SerializerBuilder $builder
-     * @param array<mixed> $config
+     * @param array<string, string> $config
      * @param ContainerInterface $container
      * @throws ContainerExceptionInterface
      */
@@ -114,7 +118,7 @@ class JmsSerializerResolver extends ConfigResolver
     /**
      * Configures the handlers in the builder, using the config values as container aliases.
      * @param SerializerBuilder $builder
-     * @param array<mixed> $config
+     * @param array{handlers?: array<string>} $config
      * @param ContainerInterface $container
      * @throws ContainerExceptionInterface
      */
@@ -125,7 +129,10 @@ class JmsSerializerResolver extends ConfigResolver
 
             $builder->configureHandlers(function (HandlerRegistry $registry) use ($handlers, $container): void {
                 foreach ($handlers as $handler) {
-                    $registry->registerSubscribingHandler($container->get($handler));
+                    $instance = $container->get($handler);
+                    if ($instance instanceof SubscribingHandlerInterface) {
+                        $registry->registerSubscribingHandler($instance);
+                    }
                 }
             });
         }
@@ -134,7 +141,7 @@ class JmsSerializerResolver extends ConfigResolver
     /**
      * Configures the listeners in the builder, using the config values as container aliases.
      * @param SerializerBuilder $builder
-     * @param array<mixed> $config
+     * @param array{listeners?: array<string>} $config
      * @param ContainerInterface $container
      * @throws ContainerExceptionInterface
      */
@@ -145,7 +152,10 @@ class JmsSerializerResolver extends ConfigResolver
 
             $builder->configureListeners(function (EventDispatcher $dispatcher) use ($listeners, $container): void {
                 foreach ($listeners as $listener) {
-                    $dispatcher->addSubscriber($container->get($listener));
+                    $instance = $container->get($listener);
+                    if ($instance instanceof EventSubscriberInterface) {
+                        $dispatcher->addSubscriber($instance);
+                    }
                 }
             });
         }
@@ -154,17 +164,23 @@ class JmsSerializerResolver extends ConfigResolver
     /**
      * Configures the visitors to the builder.
      * @param SerializerBuilder $builder
-     * @param array<mixed> $config
+     * @param array{serializationVisitors?: array<string>, deserializationVisitors?: array<string>} $config
      * @param ContainerInterface $container
      * @throws ContainerExceptionInterface
      */
     private function configureVisitors(SerializerBuilder $builder, array $config, ContainerInterface $container): void
     {
         foreach ($config[ConfigKey::SERIALIZATION_VISITORS] ?? [] as $format => $visitor) {
-            $builder->setSerializationVisitor($format, $container->get($visitor));
+            $instance = $container->get($visitor);
+            if ($instance instanceof  SerializationVisitorFactory) {
+                $builder->setSerializationVisitor($format, $instance);
+            }
         }
         foreach ($config[ConfigKey::DESERIALIZATION_VISITORS] ?? [] as $format => $visitor) {
-            $builder->setDeserializationVisitor($format, $container->get($visitor));
+            $instance = $container->get($visitor);
+            if ($instance instanceof  DeserializationVisitorFactory) {
+                $builder->setDeserializationVisitor($format, $instance);
+            }
         }
     }
 }
