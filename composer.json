@@ -13,9 +13,9 @@
         }
     ],
     "require": {
-        "php": "^7.4 | ^8.0",
-        "jms/serializer": "^3.0",
-        "psr/container": "^1.0"
+        "php": "^8.0",
+        "bluepsyduck/laminas-autowire-factory": "dev-feature/attributes",
+        "jms/serializer": "^3.0"
     },
     "require-dev": {
         "bluepsyduck/test-helper": "^1.0",
