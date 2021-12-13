@@ -26,16 +26,16 @@ use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 
 return [
     'serializers' => [
-      'my-fancy-serializer' => [
-          ConfigKey::PROPERTY_NAMING_STRATEGY => IdenticalPropertyNamingStrategy::class,
-          ConfigKey::HANDLERS => [
-              MyFancyHandler::class,
-          ],
-          ConfigKey::METADATA_DIRS => [
-              'My\Fancy\Namespace' => __DIR__ . '/../serializer',
-          ],
-          ConfigKey::CACHE_DIR => __DIR__ . '/../../data/cache',
-      ],
+        'my-fancy-serializer' => [
+            ConfigKey::PROPERTY_NAMING_STRATEGY => IdenticalPropertyNamingStrategy::class,
+            ConfigKey::HANDLERS => [
+                MyFancyHandler::class,
+            ],
+            ConfigKey::METADATA_DIRS => [
+                'My\Fancy\Namespace' => __DIR__ . '/../serializer',
+            ],
+            ConfigKey::CACHE_DIR => __DIR__ . '/../../data/cache',
+        ],
     ],
 ];
 ```
@@ -78,37 +78,54 @@ $myFancySerializer = $container->get('MyFancySerializer');
 $json = $myFancySerializer->serialize($data, 'json');
 ```
 
+Alternatively, if the [Laminas AutoWire Factory](https://github.com/BluePsyduck/laminas-autowire-factory) is set up,
+the Attribute `UseJmsSerializer` can be used to resolve a parameter of the constructor to the configuration of the
+serializer:
+
+```php
+use BluePsyduck\JmsSerializerFactory\Attribute\UseJmsSerializer;
+use JMS\Serializer\SerializerInterface;
+
+class MyFancyClass {
+    public function __construct(
+        #[UseJmsSerializer('serializers', 'my-fancy-serializer')] // The keys to the configuration of the serializer.
+        private SerializerInterface $serializer,
+    ) {
+    }
+}
+```
+
 ## All config options
 
 The following table shows the full list of config values supported by the factory. `Constant` refers to the name of the
 constant in the `ConfigKey` interface, and the `SerializerBuilder method` column refers to the method of the builder 
 used for that config value. For further details, please check the method signatures and doc-blocks of the builder.
 
-Constant                             | Expected value                    | SerializerBuilder method
------------------------------------- | --------------------------------- | -------------------------------------
-ACCESSOR_STRATEGY                    | container alias                   | ->setAccessorStrategy()
-EXPRESSION_EVALUATOR                 | container alias                   | ->setExpressionEvaluator()
-TYPE_PARSER                          | container alias                   | ->setTypeParser()
-ANNOTATION_READER                    | container alias                   | ->setAnnotationReader()
-DEBUG                                | bool                              | ->setDebug()
-CACHE_DIR                            | string                            | ->setCacheDir()
-ADD_DEFAULT_HANDLERS                 | true                              | ->addDefaultHandlers()
-HANDLERS                             | array\<container aliases\>        | ->configureHandlers()
-ADD_DEFAULT_LISTENERS                | true                              | ->addDefaultListeners()
-LISTENERS                            | array\<container alias\>          | ->configureListeners()
-OBJECT_CONSTRUCTOR                   | container alias                   | ->setObjectConstructor()
-PROPERTY_NAMING_STRATEGY             | container alias                   | ->setPropertyNamingStrategy()
-SERIALIZATION_VISITORS               | array\<string, container alias\>  | ->setSerializationVisitor()
-DESERIALIZATION_VISITORS             | array\<string, container alias\>  | ->setDeserializationVisitor()
-ADD_DEFAULT_SERIALIZATION_VISITORS   | true                              | ->addDefaultSerializationVisitors()
-ADD_DEFAULT_DESERIALIZATION_VISITORS | true                              | ->addDefaultDeserializationVisitors()
-INCLUDE_INTERFACE_METADATA           | bool                              | ->includeInterfaceMetadata() 
-METADATA_DIRS                        | array\<string, string\>           | ->setMetadataDirs()
-METADATA_DRIVER_FACTORY              | container alias                   | ->setMetadataDriverFactory()
-SERIALIZATION_CONTEXT_FACTORY        | container alias                   | ->setSerializationContextFactory()
-DESERIALIZATION_CONTEXT_FACTORY      | container alias                   | ->setDeserializationContextFactory()
-METADATA_CACHE                       | container alias                   | ->setMetadataCache()
-DOC_BLOCK_TYPE_RESOLVER              | bool                              | ->setDocBlockTypeResolver()
+| Constant                             | Expected value                   | SerializerBuilder method              |
+|--------------------------------------|----------------------------------|---------------------------------------|
+| ACCESSOR_STRATEGY                    | container alias                  | ->setAccessorStrategy()               |
+| EXPRESSION_EVALUATOR                 | container alias                  | ->setExpressionEvaluator()            |
+| TYPE_PARSER                          | container alias                  | ->setTypeParser()                     |
+| ANNOTATION_READER                    | container alias                  | ->setAnnotationReader()               |
+| DEBUG                                | bool                             | ->setDebug()                          |
+| CACHE_DIR                            | string                           | ->setCacheDir()                       |
+| ADD_DEFAULT_HANDLERS                 | true                             | ->addDefaultHandlers()                |
+| HANDLERS                             | array\<container alias\>         | ->configureHandlers()                 |
+| ADD_DEFAULT_LISTENERS                | true                             | ->addDefaultListeners()               |
+| LISTENERS                            | array\<container alias\>         | ->configureListeners()                |
+| OBJECT_CONSTRUCTOR                   | container alias                  | ->setObjectConstructor()              |
+| PROPERTY_NAMING_STRATEGY             | container alias                  | ->setPropertyNamingStrategy()         |
+| SERIALIZATION_VISITORS               | array\<string, container alias\> | ->setSerializationVisitor()           |
+| DESERIALIZATION_VISITORS             | array\<string, container alias\> | ->setDeserializationVisitor()         |
+| ADD_DEFAULT_SERIALIZATION_VISITORS   | true                             | ->addDefaultSerializationVisitors()   |
+| ADD_DEFAULT_DESERIALIZATION_VISITORS | true                             | ->addDefaultDeserializationVisitors() |
+| INCLUDE_INTERFACE_METADATA           | bool                             | ->includeInterfaceMetadata()          |
+| METADATA_DIRS                        | array\<string, string\>          | ->setMetadataDirs()                   |
+| METADATA_DRIVER_FACTORY              | container alias                  | ->setMetadataDriverFactory()          |
+| SERIALIZATION_CONTEXT_FACTORY        | container alias                  | ->setSerializationContextFactory()    |
+| DESERIALIZATION_CONTEXT_FACTORY      | container alias                  | ->setDeserializationContextFactory()  |
+| METADATA_CACHE                       | container alias                  | ->setMetadataCache()                  |
+| DOC_BLOCK_TYPE_RESOLVER              | bool                             | ->setDocBlockTypeResolver()           |
 
 ###### Notes:
 

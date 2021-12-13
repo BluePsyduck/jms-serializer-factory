@@ -14,7 +14,7 @@
     ],
     "require": {
         "php": "^8.0",
-        "bluepsyduck/laminas-autowire-factory": "dev-feature/attributes",
+        "bluepsyduck/laminas-autowire-factory": "^2.0",
         "jms/serializer": "^3.0"
     },
     "require-dev": {
